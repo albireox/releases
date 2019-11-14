@@ -1,17 +1,35 @@
+import distutils
 from functools import reduce
 from operator import xor
 
-from docutils import nodes
-from semantic_version import Version as StrictVersion, Spec
+import semantic_version
 import six
+from docutils import nodes
+from semantic_version import Spec
 
 
-class Version(StrictVersion):
-    """
-    Version subclass toggling ``partial=True`` by default.
-    """
-    def __init__(self, version_string, partial=True):
-        super(Version, self).__init__(version_string, partial)
+semver_version = distutils.version.StrictVersion(semantic_version.__version__)
+
+if semver_version < distutils.version.StrictVersion('2.7.0'):
+
+    StrictVersion = semantic_version.StrictVersion
+
+    class Version(StrictVersion):
+        """
+        Version subclass toggling ``partial=True`` by default.
+        """
+        def __init__(self, version_string, partial=True):
+            super(Version, self).__init__(version_string, partial)
+
+else:
+
+    class Version(semantic_version.Version):
+        """
+        Version subclass. Ignore partial.
+        """
+        def __init__(self, version_string, partial=True):
+            super(Version, self).__init__(version_string)
+
 
 
 # Issue type list (keys) + color values
